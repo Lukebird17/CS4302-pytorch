@@ -1,0 +1,24 @@
+# LayerNorm CUDA算子调研项目依赖
+
+# 核心依赖
+torch>=1.12.0
+numpy>=1.20.0
+
+# Transformers和数据集
+transformers>=4.20.0
+datasets>=2.0.0
+tokenizers>=0.12.0
+
+# 可视化和进度条
+matplotlib>=3.5.0
+tqdm>=4.64.0
+
+# 其他工具
+Pillow>=9.0.0
+pandas>=1.4.0
+
+# 注意：
+# 1. PyTorch建议从源码编译以便深入研究
+# 2. 需要安装CUDA Toolkit (11.0或更高版本)
+# 3. gcc版本需要与CUDA兼容
+

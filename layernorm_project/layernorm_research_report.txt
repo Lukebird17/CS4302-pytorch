@@ -1,0 +1,59 @@
+================================================================================
+LayerNorm CUDA算子调研报告
+================================================================================
+
+一、算子概述
+----------------------------------------
+LayerNorm (Layer Normalization) 是深度学习中重要的归一化层，
+广泛应用于Transformer架构中。它对每个样本的特征维度进行归一化。
+
+二、数学原理
+----------------------------------------
+公式: y = γ * (x - μ) / √(σ² + ε) + β
+其中: μ为均值, σ²为方差, γ和β为可学习参数
+
+三、PyTorch实现路径
+----------------------------------------
+1. Python接口: torch.nn.LayerNorm
+   文件: torch/nn/modules/normalization.py
+
+2. C++实现: at::layer_norm
+   声明: aten/src/ATen/native/native_functions.yaml
+   实现: aten/src/ATen/native/layer_norm.cpp
+
+3. CUDA Kernel: LayerNormForwardKernel
+   文件: aten/src/ATen/native/cuda/layer_norm_kernel.cu
+
+四、CUDA并行化策略
+----------------------------------------
+1. 并行维度:
+   - Grid维度: (batch_size, seq_len)
+   - Block维度: 处理hidden_size
+
+2. Reduction策略:
+   - 使用shared memory进行block内reduction
+   - 使用warp shuffle优化
+
+3. 内存访问优化:
+   - 向量化加载(float4)
+   - 合并访问模式
+   - 共享内存缓存
+
+五、潜在优化空间
+----------------------------------------
+1. 算子融合: 将LayerNorm与前后算子融合
+2. 精度优化: 使用FP16/BF16混合精度
+3. Tile优化: 优化tile大小匹配GPU架构
+4. 流水线: 隐藏访存延迟
+5. 多Stream: 支持更好的并发
+
+六、相关文件清单
+----------------------------------------
+PyTorch源码中的关键文件:
+1. aten/src/ATen/native/native_functions.yaml (算子声明)
+2. aten/src/ATen/native/layer_norm.cpp (CPU实现)
+3. aten/src/ATen/native/cuda/layer_norm_kernel.cu (CUDA实现)
+4. torch/nn/modules/normalization.py (Python接口)
+5. torch/nn/functional.py (函数式接口)
+6. c10/cuda/* (CUDA Runtime封装)
+

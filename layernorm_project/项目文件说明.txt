@@ -1,0 +1,193 @@
+LayerNorm CUDA算子调研与优化项目 - 文件清单
+========================================================
+
+【核心代码文件】
+1. layernorm_research.py
+   - 功能：LayerNorm算子深度调研
+   - 包含：Profiler分析、Kernel统计、实现原理分析、内存访问分析
+   - 运行：python layernorm_research.py
+   - 输出：profiler_results/目录下的trace和统计文件
+
+2. bert_inference_benchmark.py
+   - 功能：BERT模型推理性能评测
+   - 包含：模型加载、IMDB数据集推理、LayerNorm性能占比分析
+   - 运行：python bert_inference_benchmark.py
+   - 输出：benchmark_results.json
+
+3. custom_layernorm.cu
+   - 功能：自定义CUDA LayerNorm实现
+   - 包含：基础版本kernel、优化版本kernel（向量化）
+   - 优化策略：float4向量化、warp shuffle、共享内存
+   - 编译：通过setup.py编译
+
+4. custom_layernorm.py
+   - 功能：Python封装和接口
+   - 包含：CustomLayerNorm类、模型替换函数、正确性测试
+   - 运行：python custom_layernorm.py (测试)
+
+5. performance_comparison.py
+   - 功能：性能对比测试
+   - 包含：多配置测试、BERT端到端测试、可视化
+   - 运行：python performance_comparison.py
+   - 输出：performance_comparison_results.json、性能图表
+
+【配置和安装文件】
+6. setup.py
+   - 功能：编译自定义CUDA扩展
+   - 运行：python setup.py install
+   - 注意：需要修改GPU架构参数
+
+7. requirements.txt
+   - 功能：Python依赖清单
+   - 运行：pip install -r requirements.txt
+
+【辅助和测试文件】
+8. test_installation.py
+   - 功能：检查环境配置
+   - 运行：python test_installation.py
+   - 输出：环境检查报告
+
+9. quick_demo.py
+   - 功能：快速演示和验证
+   - 包含：基本用法、数学原理、性能对比、BERT应用
+   - 运行：python quick_demo.py
+
+【文档文件】
+10. README.md
+    - 项目完整说明文档（英文）
+    - 包含：环境要求、安装说明、文件结构、使用指南、实验结果
+
+11. 实验指南.md
+    - 详细的实验步骤指南（中文）
+    - 包含：每一步的详细说明、关键观察点、常见问题
+
+12. 项目文件说明.txt
+    - 本文件，文件清单和说明
+
+【对应的PyTorch源码位置】
+在pytorch目录下的关键文件：
+
+1. aten/src/ATen/native/native_functions.yaml
+   - LayerNorm算子声明
+   - 定义了函数签名和dispatch规则
+
+2. aten/src/ATen/native/layer_norm.cpp
+   - CPU版本实现
+   - 包含layer_norm的主要逻辑
+
+3. aten/src/ATen/native/cuda/layer_norm_kernel.cu
+   - CUDA版本实现
+   - 包含LayerNormForwardKernel等kernel函数
+
+4. torch/nn/modules/normalization.py
+   - Python接口实现
+   - LayerNorm类的定义
+
+5. torch/nn/functional.py
+   - 函数式接口
+   - layer_norm函数
+
+6. c10/cuda/CUDACachingAllocator.cpp
+   - CUDA内存分配器
+   - cudaMalloc/cudaFree的封装
+
+7. c10/cuda/CUDAStream.cpp
+   - CUDA Stream管理
+   - cudaStreamSynchronize等API
+
+8. c10/cuda/CUDAFunctions.cpp
+   - CUDA基础函数封装
+   - 设备管理相关
+
+【运行顺序建议】
+1. python test_installation.py        # 检查环境
+2. python quick_demo.py               # 快速演示
+3. python layernorm_research.py       # 深度调研
+4. python bert_inference_benchmark.py # BERT评测
+5. python setup.py install            # 编译自定义扩展
+6. python custom_layernorm.py         # 测试自定义实现
+7. python performance_comparison.py   # 性能对比
+
+【输出文件】
+- profiler_results/
+  - layernorm_trace.json              # LayerNorm的Chrome trace
+  - layernorm_stats.txt               # 详细统计信息
+  - bert_layernorm_trace.json         # BERT的trace
+
+- benchmark_results.json              # BERT评测结果
+- performance_comparison_results.json # 性能对比结果
+- layernorm_research_report.txt       # 调研报告
+
+- performance_plots/
+  - layernorm_performance_comparison.png  # 性能对比图表
+
+【报告撰写要点】
+1. 算子调研部分（30分）
+   - LayerNorm原理和计算流程
+   - PyTorch实现路径和源码分析
+   - CUDA并行化策略（grid/block配置、reduction实现）
+   - CUDA Runtime API使用情况
+   - 内存访问模式和优化机会
+
+2. 自定义实现部分（25分）
+   - 基础版本的实现和代码说明
+   - 优化版本的实现和优化策略
+   - 正确性验证（误差分析）
+
+3. 性能优化部分（15分）
+   - 优化方法详细说明（向量化、warp shuffle、共享内存）
+   - 性能数据和加速比
+   - 优化效果分析
+
+4. 文档和展示部分（30分）
+   - 完整的README和实验指南
+   - 清晰的代码注释
+   - 详细的实验数据和图表
+   - 运行截图和分析说明
+
+【关键技术点】
+1. CUDA并行编程
+   - Grid/Block配置
+   - Warp-level programming
+   - Shared memory使用
+   - Reduction算法
+
+2. 性能优化
+   - 向量化访问（float4）
+   - 内存合并访问
+   - Bank conflict避免
+   - 指令级并行
+
+3. PyTorch扩展
+   - CUDA Extension编译
+   - Python/C++/CUDA互操作
+   - Autograd集成（可选）
+
+4. 性能分析
+   - PyTorch Profiler使用
+   - Chrome Trace分析
+   - 带宽计算
+   - 瓶颈分析
+
+【常见问题】
+Q: 编译失败？
+A: 检查CUDA版本、gcc版本、GPU架构设置
+
+Q: 性能没有提升？
+A: 正常！PyTorch已经高度优化，学习目的是理解原理
+
+Q: 数值结果不一致？
+A: 检查精度设置，float32误差在1e-3内可接受
+
+Q: GPU内存不足？
+A: 减小batch_size和sequence_length
+
+【参考资料】
+1. PyTorch源码：https://github.com/pytorch/pytorch
+2. CUDA编程指南：https://docs.nvidia.com/cuda/
+3. Layer Normalization论文：https://arxiv.org/abs/1607.06450
+4. BERT论文：https://arxiv.org/abs/1810.04805
+
+========================================================
+项目完成！祝实验顺利！
+
