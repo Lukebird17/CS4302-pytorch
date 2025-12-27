@@ -23,7 +23,7 @@ rule cuda_compile
 
 
 
-build /hy-tmp/bert_optimization_project/custom_ops/build/temp.linux-x86_64-cpython-310/custom_gemm.o: cuda_compile /hy-tmp/bert_optimization_project/custom_ops/custom_gemm.cu
+build /hy-tmp/lhl/bert_optimization_project/custom_ops/build/temp.linux-x86_64-cpython-310/custom_gemm.o: cuda_compile /hy-tmp/lhl/bert_optimization_project/custom_ops/custom_gemm.cu
 
 
 

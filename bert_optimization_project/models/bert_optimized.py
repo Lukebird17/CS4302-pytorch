@@ -126,9 +126,9 @@ class FusedBertSelfOutput(nn.Module):
         hidden_states = self.dense(hidden_states)
         
         if FUSED_OPS_AVAILABLE and not self.training:
-            return bert_fused_ops.fused_layernorm_residual_dropout(
+            return bert_fused_ops.fused_ln_residual_optimized(
                 hidden_states, input_tensor,
-                self.gamma, self.beta, 0.0, self.eps
+                self.gamma, self.beta, self.eps
             )
         else:
             hidden_states = self.dropout(hidden_states)
@@ -150,9 +150,9 @@ class FusedBertOutput(nn.Module):
         hidden_states = self.dense(hidden_states)
         
         if FUSED_OPS_AVAILABLE and not self.training:
-            return bert_fused_ops.fused_layernorm_residual_dropout(
+            return bert_fused_ops.fused_ln_residual_optimized(
                 hidden_states, input_tensor,
-                self.gamma, self.beta, 0.0, self.eps
+                self.gamma, self.beta, self.eps
             )
         else:
             hidden_states = self.dropout(hidden_states)

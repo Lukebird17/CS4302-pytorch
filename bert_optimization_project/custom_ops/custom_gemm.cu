@@ -179,11 +179,11 @@ __global__ void gemm_768_kernel(
     int M, int N
 ) {
     constexpr int K = 768;
-    constexpr int TILE_K = 32;  // 每次加载32个K
+    constexpr int TILE_K = 16;  // 改为16，匹配block大小
     constexpr int TILE_M = 16;
     constexpr int TILE_N = 16;
     
-    // Shared memory: 16x32 + 32x16 = 1536 floats = 6KB (安全！)
+    // Shared memory: 16x16 + 16x16 = 512 floats = 2KB
     __shared__ float As[TILE_M][TILE_K];
     __shared__ float Bs[TILE_K][TILE_N];
     
@@ -192,17 +192,16 @@ __global__ void gemm_768_kernel(
     
     float sum = 0.0f;
     
-    // 循环遍历K维度：768 / 32 = 24次
-    #pragma unroll 24
+    // 循环遍历K维度：768 / 16 = 48次
     for (int t = 0; t < K; t += TILE_K) {
-        // Load A tile
+        // Load A tile - 每个线程加载1个元素
         if (row < M && (t + threadIdx.x) < K) {
             As[threadIdx.y][threadIdx.x] = A[row * K + t + threadIdx.x];
         } else {
             As[threadIdx.y][threadIdx.x] = 0.0f;
         }
         
-        // Load B tile
+        // Load B tile - 每个线程加载1个元素
         if ((t + threadIdx.y) < K && col < N) {
             Bs[threadIdx.y][threadIdx.x] = B[(t + threadIdx.y) * N + col];
         } else {
@@ -366,11 +365,11 @@ __global__ void gemm_bias_gelu_kernel_768(
     int M, int N
 ) {
     constexpr int K = 768;
-    constexpr int TILE_K = 32;
+    constexpr int TILE_K = 16;
     constexpr int TILE_M = 16;
     constexpr int TILE_N = 16;
     
-    // Shared memory: 16x32 + 32x16 = 1536 floats = 6KB
+    // Shared memory: 16x16 + 16x16 = 512 floats = 2KB
     __shared__ float As[TILE_M][TILE_K];
     __shared__ float Bs[TILE_K][TILE_N];
     
@@ -380,7 +379,6 @@ __global__ void gemm_bias_gelu_kernel_768(
     float sum = 0.0f;
     
     // 循环遍历K维度
-    #pragma unroll 24
     for (int t = 0; t < K; t += TILE_K) {
         // Load tiles
         if (row < M && (t + threadIdx.x) < K) {

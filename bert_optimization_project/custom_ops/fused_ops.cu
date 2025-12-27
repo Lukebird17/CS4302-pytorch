@@ -313,10 +313,23 @@ torch::Tensor fused_ln_residual_optimized(
     
     auto output = torch::empty_like(input);
     
-    const int batch_size = input.size(0);
-    const int seq_len = input.size(1);
-    const int hidden_size = input.size(2);
-    const int total_tokens = batch_size * seq_len;
+    // 支持2D和3D张量
+    int total_tokens;
+    int hidden_size;
+    
+    if (input.dim() == 2) {
+        // 2D: [batch*seq, hidden]
+        total_tokens = input.size(0);
+        hidden_size = input.size(1);
+    } else if (input.dim() == 3) {
+        // 3D: [batch, seq, hidden]
+        const int batch_size = input.size(0);
+        const int seq_len = input.size(1);
+        hidden_size = input.size(2);
+        total_tokens = batch_size * seq_len;
+    } else {
+        throw std::runtime_error("Input must be 2D or 3D tensor");
+    }
     
     if (hidden_size == 768) {
         const int threads = 256;
