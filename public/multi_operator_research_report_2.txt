@@ -1,0 +1,117 @@
+================================================================================
+PyTorch CUDA 算子综合调研报告
+================================================================================
+
+调研算子: addmm, softmax, layernorm, transpose
+
+一、算子概述
+----------------------------------------
+
+1. ADDMM (Add Matrix Multiply)
+   功能: 矩阵乘加 out = β*input + α*(mat1@mat2)
+   应用: 全连接层、线性变换
+   实现: 调用cuBLAS库
+
+2. SOFTMAX
+   功能: 归一化指数函数
+   应用: Attention权重、分类输出
+   实现: 自定义CUDA kernel
+
+3. LAYERNORM
+   功能: 层归一化
+   应用: Transformer归一化层
+   实现: 自定义CUDA kernel
+
+4. TRANSPOSE
+   功能: 维度交换
+   应用: 矩阵转置、维度重排
+   实现: View操作或Copy kernel
+
+
+二、PyTorch源码位置
+----------------------------------------
+
+算子声明 (统一位置):
+  aten/src/ATen/native/native_functions.yaml
+
+ADDMM:
+  - CPU: aten/src/ATen/native/LinearAlgebra.cpp
+  - CUDA: aten/src/ATen/native/cuda/Blas.cpp
+  - cuBLAS: aten/src/ATen/cuda/CUDABlas.cpp
+
+SOFTMAX:
+  - CPU: aten/src/ATen/native/SoftMax.cpp
+  - CUDA: aten/src/ATen/native/cuda/SoftMax.cu
+
+LAYERNORM:
+  - CPU: aten/src/ATen/native/layer_norm.cpp
+  - CUDA: aten/src/ATen/native/cuda/layer_norm_kernel.cu
+
+TRANSPOSE:
+  - CPU: aten/src/ATen/native/TensorTransformations.cpp
+  - CUDA: aten/src/ATen/native/cuda/Copy.cu
+  - CUDA: aten/src/ATen/native/cuda/Transpose.cu
+
+
+三、CUDA Runtime API使用
+----------------------------------------
+
+内存管理:
+  - cudaMalloc/cudaFree: GPU内存分配释放
+  - cudaMemcpy: CPU-GPU数据传输
+  位置: c10/cuda/CUDACachingAllocator.cpp
+
+Kernel启动:
+  - cudaLaunchKernel: 启动CUDA kernel
+  位置: c10/cuda/CUDAStream.h
+
+同步操作:
+  - cudaDeviceSynchronize: 等待所有操作完成
+  - cudaStreamSynchronize: 等待指定stream
+  位置: c10/cuda/CUDAFunctions.cpp
+
+Stream管理:
+  - cudaStreamCreate/Destroy: Stream创建销毁
+  位置: c10/cuda/CUDAStream.cpp
+
+Event管理:
+  - cudaEventCreate/Record/ElapsedTime: 计时
+  位置: c10/cuda/CUDAEvent.h
+
+设备管理:
+  - cudaSetDevice/GetDevice: GPU选择
+  - cudaGetDeviceProperties: 获取GPU属性
+  位置: c10/cuda/CUDAFunctions.cpp
+
+
+四、优化策略总结
+----------------------------------------
+
+ADDMM:
+  - 使用cuBLAS高度优化的GEMM
+  - Tensor Core加速(支持时)
+  - 矩阵分块(Tiling)
+
+SOFTMAX:
+  - 在线算法减少内存访问
+  - Warp-level primitives
+  - 向量化加载
+
+LAYERNORM:
+  - Warp shuffle reduction
+  - 向量化访问(float4)
+  - 共享内存优化
+
+TRANSPOSE:
+  - View操作避免数据移动
+  - Shared memory避免非合并访问
+  - Padding避免bank conflict
+
+
+五、性能测试结果
+----------------------------------------
+
+{'operation': 'addmm', 'avg_time_ms': 0.14433279991149903, 'throughput_tflops': 5.579510468125001}
+{'operation': 'softmax', 'avg_time_ms': 0.015267839431762695, 'throughput_m_per_sec': 34339.37082867724}
+{'operation': 'layernorm', 'avg_time_ms': 0.09946111679077148}
+{'operation': 'transpose', 'view_time_ms': 0.0018198399543762208, 'copy_time_ms': 0.046873600006103515}

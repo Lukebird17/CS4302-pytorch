@@ -1,3 +1,0 @@
-# ninja log v7
-1	82258	1766821716206765632	/hy-tmp/lhl/bert_optimization_project/custom_ops/build/temp.linux-x86_64-cpython-310/fused_ops.o	231b149f830219c8
-0	220805	1766821800643011498	/hy-tmp/lhl/bert_optimization_project/custom_ops/build/temp.linux-x86_64-cpython-310/custom_gemm.o	68d5973631c6ffcc

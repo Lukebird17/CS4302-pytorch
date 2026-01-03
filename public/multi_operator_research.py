@@ -938,7 +938,7 @@ class MultiOperatorResearch:
         self.research_cuda_runtime()
         
         # Profiler分析
-        self.profile_all_operators()
+        #self.profile_all_operators()
         
         # 生成报告
         self.generate_comprehensive_report(results)
