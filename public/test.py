@@ -5,7 +5,8 @@ from datasets import load_dataset
 from torch.profiler import profile, ProfilerActivity, record_function
 import os
 
-# HF_TOKEN removed for security
+# 使用环境变量或HF Mirror，不要硬编码token
+# os.environ["HF_TOKEN"] = "your_token_here"  # 从环境变量获取
 class BertSoftmaxResearch:
     def __init__(self, model_name="bert-base-uncased"):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
