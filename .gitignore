@@ -1,0 +1,59 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.pytest_cache/
+.coverage
+
+# PyTorch
+*.pth
+*.pt
+*.ckpt
+
+# 环境变量和密钥
+.env
+*.key
+*.token
+secrets/
+
+# 数据集（太大，不要提交）
+**dataset/**
+bert_inference_acceleration/dataset/
+operator_search/output/
+*.arrow
+*.parquet
+
+# CUDA 编译产物
+custom_ops/build/
+custom_ops/dist/
+custom_ops/*.so
+custom_ops/*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 日志
+*.log
+logs/
+
+# 模型文件（可选，如果模型太大）
+# models/
+# *.bin
+
+# MacOS
+.DS_Store
+
+# 临时文件
+tmp/
+temp/
+*.tmp

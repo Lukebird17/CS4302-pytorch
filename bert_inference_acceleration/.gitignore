@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# PyTorch
+*.pth
+*.pt
+
+# CUDA
+*.o
+*.a
+*.lib
+*.exp
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data
+data/*.csv
+data/*.json
+data/cache/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+custom_ops/build/
+custom_ops/dist/
+custom_ops/*.egg-info/
+
+
+
+
